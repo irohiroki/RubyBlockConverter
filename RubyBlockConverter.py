@@ -3,32 +3,42 @@ import tokenize
 import re
 import sublime, sublime_plugin
 
+def find(collection, f):
+  for i in collection:
+    if f(i):
+      return i
+  return None
+
+def search_points_to_replace(command):
+  points_to_replace = set()
+  for region in command.view.sel():
+    opening_point = find(command.opening_points, lambda p: p <= region.b)
+    if opening_point:
+      points_to_replace.add(opening_point)
+      points_to_replace.add(command.blocks[opening_point])
+
+  return list(points_to_replace)
+
+def match_blocks(command, toknum, opening, closing):
+  view = command.view
+  opening_points = []
+  blocks = {}
+
+  content = view.substr(sublime.Region(0, view.size()))
+  tokens = tokenize.generate_tokens(StringIO.StringIO(content).readline)
+  for num, val, start, _, _ in tokens:
+    if num == toknum:
+      start_point = view.text_point(start[0] - 1, start[1])
+      if val == opening:
+        opening_points.append(start_point)
+      elif val == closing:
+        if opening_points:
+          blocks[opening_points.pop()] = start_point
+
+  return blocks
+
 class BraceToDoEndCommand(sublime_plugin.TextCommand):
   lines_to_reindent = set()
-
-  def find(self, collection, f):
-    for i in collection:
-      if f(i):
-        return i
-    return None
-
-  def braces(self):
-    view = self.view
-    opening_points = []
-    braces = {}
-
-    content = view.substr(sublime.Region(0, view.size()))
-    tokens = tokenize.generate_tokens(StringIO.StringIO(content).readline)
-    for num, val, start, _, _ in tokens:
-      if num == tokenize.OP:
-        start_point = view.text_point(start[0] - 1, start[1])
-        if val == '{':
-          opening_points.append(start_point)
-        elif val == '}':
-          if opening_points:
-            braces[opening_points.pop()] = start_point
-
-    return braces
 
   def reindent(self):
     view = self.view
@@ -45,24 +55,16 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
     view = self.view
-    sel = view.sel()
-    braces = self.braces()
+    self.blocks = match_blocks(self, tokenize.OP, '{', '}')
 
-    opening_points = braces.keys()
-    opening_points.sort(None, None, True)  # reverse
+    self.opening_points = self.blocks.keys()
+    self.opening_points.sort(None, None, True)  # reverse
 
-    points_to_replace = set()
-    for region in sel:
-      opening_point = self.find(opening_points, lambda p: p <= region.b)
-      if opening_point:
-        points_to_replace.add(opening_point)
-        points_to_replace.add(braces[opening_point])
-
-    points_to_replace = list(points_to_replace)
+    points_to_replace = search_points_to_replace(self)
     points_to_replace.sort(None, None, True)
 
     for p in points_to_replace:
-      if p in opening_points:
+      if p in self.opening_points:
         # f{          f do
         # f{|a|       f do |a|
         # f{ |a|      f do |a|
@@ -93,3 +95,27 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
         self.lines_to_reindent.add(view.rowcol(p)[0] + 1)
 
     self.reindent()
+
+class DoEndToBraceCommand(sublime_plugin.TextCommand):
+  def row_span(self, point):
+    return self.view.rowcol(self.blocks[point])[0] - self.view.rowcol(point)[0]
+
+  def run(self, edit):
+    view = self.view
+    self.blocks = match_blocks(self, tokenize.NAME, 'do', 'end')
+
+    self.opening_points = self.blocks.keys()
+    self.opening_points.sort(None, None, True)  # reverse
+
+    points_to_replace = search_points_to_replace(self)
+    points_to_replace.sort(None, None, True)
+
+    for p in points_to_replace:
+      if p in self.opening_points:
+        if self.row_span(p) in [1, 2]:
+          block_inner = re.sub('[ \t]*[\r\n]+[ \t]*', ' ', view.substr(sublime.Region(p + 2, self.blocks[p])))
+          view.replace(edit, sublime.Region(p, self.blocks[p]), '{' + block_inner)
+        else:
+          view.replace(edit, sublime.Region(p, p + 2), '{')
+      else:
+        view.replace(edit, sublime.Region(p, p + 3), '}')

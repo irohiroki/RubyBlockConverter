@@ -1,48 +1,56 @@
 Ruby Block Converter for Sublime Text 2
 ==============================
-A command plugin that enables to convert ruby blocks in brace to `do end`.
+A command plugin that enables to convert ruby blocks in brace to `do end` and vice versa.
 
 How It Works
 --------------
 Place the cursor in the block and run the command:
 
 ```ruby
-# from
+# original
 foo { bar }
 
-# to
+# run "brace_to_do_end"
 foo do
   bar
 end
+
+# run "do_end_to_brace"
+foo { bar }
 ```
 
-with arguments:
+do_end_to_brace shrinks a block in a line when the block traverses at most 3 lines.
 
 ```ruby
-# from
-foo {|a| a.bar }
-
-# to
-foo do |a|
-  a.bar
-end
-```
-
-multiline:
-
-```ruby
-# from
+# original
 foo {|a|
   a.bar
 }
 
-# to
+# run "brace_to_do_end"
 foo do |a|
   a.bar
 end
+
+# but when revert with "do_end_to_brace",
+foo {|a| a.bar }
 ```
 
-white spaces are naturally rearranged.
+When a block has more than 3 lines, do_end_to_brace leaves those lines untouched.
+
+```ruby
+# original
+foo do
+  bar
+  baz
+end
+
+# run "do_end_to_brace"
+foo {
+  bar
+  baz
+}
+```
 
 Install
 -------
@@ -56,10 +64,11 @@ git clone https://github.com/irohiroki/RubyBlockConverter.git
 
 Key Binding
 -----------
-Bind `brace_to_do_end` to any key conbination of your choice, e.g.
+Bind `brace_to_do_end` and `do_end_to_brace` to any key conbination of your choice, e.g.
 
 ```
-{ "keys": ["alt+d"], "command": "brace_to_do_end" }
+{ "keys": ["alt+d"], "command": "brace_to_do_end" },
+{ "keys": ["alt+b"], "command": "do_end_to_brace" }
 ```
 
 License
