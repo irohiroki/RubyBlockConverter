@@ -4,6 +4,8 @@ import re
 import sublime, sublime_plugin
 
 class BraceToDoEndCommand(sublime_plugin.TextCommand):
+  lines_to_reindent = set()
+
   def find(self, collection, f):
     for i in collection:
       if f(i):
@@ -28,6 +30,19 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
 
     return braces
 
+  def reindent(self):
+    view = self.view
+    sel = view.sel()
+    dirty_lines = set()
+    for line in self.lines_to_reindent:
+      line_end = sublime.Region(view.line(view.text_point(line, 0)).b)
+      if not sel.contains(line_end):
+        sel.add(line_end)
+        dirty_lines.add(line)
+    view.run_command('reindent', {'force_indent': False})
+    for line in dirty_lines:
+      sel.subtract(sublime.Region(view.line(view.text_point(line, 0)).b))
+
   def run(self, edit):
     view = self.view
     sel = view.sel()
@@ -46,7 +61,6 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
     points_to_replace = list(points_to_replace)
     points_to_replace.sort(None, None, True)
 
-    lines_to_reindent = set()
     for p in points_to_replace:
       if p in opening_points:
         # f{          f do
@@ -73,9 +87,7 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
         view.replace(edit, sublime.Region(p, p + 1), '%send' % newline)
 
       if newline:
-        lines_to_reindent = set(map(lambda l: l + 1, lines_to_reindent))
-        lines_to_reindent.add(view.rowcol(p)[0] + 1)
+        self.lines_to_reindent = set(map(lambda l: l + 1, self.lines_to_reindent))
+        self.lines_to_reindent.add(view.rowcol(p)[0] + 1)
 
-    for line in lines_to_reindent:
-      sel.add(sublime.Region(view.text_point(line, 0)))
-    view.run_command('reindent', {'force_indent': False})
+    self.reindent()
