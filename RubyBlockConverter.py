@@ -81,10 +81,12 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
         view.replace(edit, region, '%sdo%s%s%s' % (heading, following, m.group('args') or '', newline))
       else:
         # a }
+        # a}
         # }
-        m = re.search('[^ \t]+[ \t]*}$', view.substr(sublime.Region(view.line(p).a, p + 1)))
-        newline = '\n' if m else ''
-        view.replace(edit, sublime.Region(p, p + 1), '%send' % newline)
+        m = re.search('(?P<exp>[^ \t]*)(?P<spaces>[ \t]*)}$', view.substr(sublime.Region(view.line(p).a, p + 1)))
+        newline = '\n' if m.group('exp') else ''
+        replace_start = p - (len(m.group('spaces')) if m.group('spaces') else 0)
+        view.replace(edit, sublime.Region(replace_start, p + 1), '%send' % newline)
 
       if newline:
         self.lines_to_reindent = set(map(lambda l: l + 1, self.lines_to_reindent))
