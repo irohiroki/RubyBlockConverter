@@ -113,9 +113,9 @@ class DoEndToBraceCommand(sublime_plugin.TextCommand):
     for p in points_to_replace:
       if p in self.opening_points:
         if self.row_span(p) in [1, 2]:
-          block_inner = re.sub('[ \t]*[\r\n]+[ \t]*', ' ', view.substr(sublime.Region(p + 2, self.blocks[p])))
-          view.replace(edit, sublime.Region(p, self.blocks[p]), '{' + block_inner)
-        else:
-          view.replace(edit, sublime.Region(p, p + 2), '{')
+          inner_region = sublime.Region(p + 2, self.blocks[p])
+          view.replace(edit, inner_region, re.sub('[ \t]*[\r\n]+[ \t]*', ' ', view.substr(inner_region)))
+        replace_end = p + 3 if view.substr(sublime.Region(p + 2, p + 4)) == ' |' else p + 2
+        view.replace(edit, sublime.Region(p, replace_end), '{')
       else:
         view.replace(edit, sublime.Region(p, p + 3), '}')
