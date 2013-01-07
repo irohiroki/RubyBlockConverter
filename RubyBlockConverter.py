@@ -40,6 +40,10 @@ def match_blocks(command, toknum, opening, closing):
 class BraceToDoEndCommand(sublime_plugin.TextCommand):
   lines_to_reindent = set()
 
+  def reserve_reindent(self, line):
+    self.lines_to_reindent = set(map(lambda l: l + 1, self.lines_to_reindent))
+    self.lines_to_reindent.add(line)
+
   def reindent(self):
     view = self.view
     sel = view.sel()
@@ -78,7 +82,11 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
         m = opening_pattern.search(view.substr(sublime.Region(p - 1, view.line(p).b)))
         heading   = ''   if m.group('heading') else ' '
         following = ' '  if m.group('args')    else ''
-        newline   = '\n' if m.group('exp')     else ''
+        if m.group('exp'):
+          newline = '\n'
+          self.reserve_reindent(view.rowcol(p)[0] + 1)
+        else:
+          newline = ''
         region = sublime.Region(p, p + len(m.group('opening')))
         view.replace(edit, region, '%sdo%s%s%s' % (heading, following, m.group('args') or '', newline))
       else:
@@ -86,13 +94,13 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
         # a}
         # }
         m = re.search('(?P<exp>[^ \t]*)(?P<spaces>[ \t]*)}$', view.substr(sublime.Region(view.line(p).a, p + 1)))
-        newline = '\n' if m.group('exp') else ''
-        replace_start = p - (len(m.group('spaces')) if m.group('spaces') else 0)
+        if m.group('exp'):
+          newline = '\n'
+          self.reserve_reindent(view.rowcol(p)[0] + 1)
+        else:
+          newline = ''
+        replace_start = p - (len(m.group('spaces')) if m.group('exp') and m.group('spaces') else 0)
         view.replace(edit, sublime.Region(replace_start, p + 1), '%send' % newline)
-
-      if newline:
-        self.lines_to_reindent = set(map(lambda l: l + 1, self.lines_to_reindent))
-        self.lines_to_reindent.add(view.rowcol(p)[0] + 1)
 
     self.reindent()
 
