@@ -12,10 +12,18 @@ def find(collection, f):
 def search_points_to_replace(command):
   points_to_replace = set()
   for region in command.view.sel():
-    opening_point = find(command.opening_points, lambda p: p <= region.b)
-    if opening_point:
-      points_to_replace.add(opening_point)
-      points_to_replace.add(command.blocks[opening_point])
+    test_point = region.b
+    while True:
+      opening_point = find(command.opening_points, lambda p: p <= test_point)
+      if opening_point:
+        if command.blocks[opening_point] >= test_point:
+          points_to_replace.add(opening_point)
+          points_to_replace.add(command.blocks[opening_point])
+          break
+        else:
+          test_point = opening_point - 1
+      else:
+        break
 
   return list(points_to_replace)
 

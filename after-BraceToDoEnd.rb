@@ -86,3 +86,8 @@
   f do |a|
     a
   end
+  f do
+    g{
+    }
+    cursor here
+  end

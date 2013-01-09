@@ -36,3 +36,8 @@
   f { |a|a }
   f { |a| a}
   f { |a| a }
+  f{
+    g{
+    }
+    cursor here
+  }
