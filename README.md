@@ -54,13 +54,7 @@ foo {
 
 Install
 -------
-Clone this repository in your Sublime Text "Package" directory:
-
-```bash
-git clone https://github.com/irohiroki/RubyBlockConverter.git
-```
-
-...or wait for support of [Package Control](http://wbond.net/sublime_packages/package_control).
+Use [Package Control](http://wbond.net/sublime_packages/package_control) and search for "Ruby Block Converter."
 
 Key Binding
 -----------
