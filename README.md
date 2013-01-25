@@ -58,12 +58,13 @@ Use [Package Control](http://wbond.net/sublime_packages/package_control) and sea
 
 Key Binding
 -----------
-Bind `brace_to_do_end` and `do_end_to_brace` to any key conbination of your choice, e.g.
+By default,
+`ctrl+shift+[` do_end_to_brace
+`ctrl+shift+]` brace_to_do_end
 
-```
-{ "keys": ["alt+d"], "command": "brace_to_do_end" },
-{ "keys": ["alt+b"], "command": "do_end_to_brace" }
-```
+Future
+------
+I have a plan to conbine these two commands. That should behave like TextMate.
 
 License
 -------
