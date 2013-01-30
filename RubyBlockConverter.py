@@ -1,4 +1,4 @@
-import StringIO
+import io
 import tokenize
 import re
 import sublime, sublime_plugin
@@ -33,7 +33,7 @@ def match_blocks(command, toknum, opening, closing):
   blocks = {}
 
   content = view.substr(sublime.Region(0, view.size()))
-  tokens = tokenize.generate_tokens(StringIO.StringIO(content).readline)
+  tokens = tokenize.generate_tokens(io.StringIO(content).readline)
   for num, val, start, _, _ in tokens:
     if num == toknum:
       start_point = view.text_point(start[0] - 1, start[1])
@@ -49,7 +49,7 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
   lines_to_reindent = set()
 
   def reserve_reindent(self, line):
-    self.lines_to_reindent = set(map(lambda l: l + 1, self.lines_to_reindent))
+    self.lines_to_reindent = set([l + 1 for l in self.lines_to_reindent])
     self.lines_to_reindent.add(line)
 
   def reindent(self):
@@ -69,11 +69,11 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
     view = self.view
     self.blocks = match_blocks(self, tokenize.OP, '{', '}')
 
-    self.opening_points = self.blocks.keys()
-    self.opening_points.sort(None, None, True)  # reverse
+    self.opening_points = list(self.blocks.keys())
+    self.opening_points.sort(reverse=True)
 
     points_to_replace = search_points_to_replace(self)
-    points_to_replace.sort(None, None, True)
+    points_to_replace.sort(reverse = True)
 
     for p in points_to_replace:
       if p in self.opening_points:
@@ -120,11 +120,11 @@ class DoEndToBraceCommand(sublime_plugin.TextCommand):
     view = self.view
     self.blocks = match_blocks(self, tokenize.NAME, 'do', 'end')
 
-    self.opening_points = self.blocks.keys()
-    self.opening_points.sort(None, None, True)  # reverse
+    self.opening_points = list(self.blocks.keys())
+    self.opening_points.sort(reverse = True)
 
     points_to_replace = search_points_to_replace(self)
-    points_to_replace.sort(None, None, True)
+    points_to_replace.sort(reverse = True)
 
     for p in points_to_replace:
       if p in self.opening_points:

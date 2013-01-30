@@ -62,6 +62,10 @@ By default,
 `ctrl+shift+[` do_end_to_brace
 `ctrl+shift+]` brace_to_do_end
 
+Compatibility
+-------------
+It's Sublime Text 3 ready!
+
 Future
 ------
 I have a plan to conbine these two commands. That should behave like TextMate.
