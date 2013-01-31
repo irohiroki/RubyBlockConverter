@@ -1,6 +1,6 @@
 Ruby Block Converter for Sublime Text 2
 ==============================
-A command plugin that enables to convert ruby blocks in brace to `do end` and vice versa.
+A command plugin that enables to toggle ruby blocks between braces and `do end`.
 
 How It Works
 --------------
