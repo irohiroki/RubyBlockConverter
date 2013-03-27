@@ -1,7 +1,8 @@
 try:
   import io
 except ImportError:
-  pass # ignore _fileio on Linux
+  import StringIO
+  # pass # ignore _fileio on Linux
 import tokenize
 import re
 import sublime, sublime_plugin
@@ -36,7 +37,7 @@ def match_blocks(command, toknum, opening, closing):
   blocks = {}
 
   content = view.substr(sublime.Region(0, view.size()))
-  tokens = tokenize.generate_tokens(io.StringIO(content).readline)
+  tokens = tokenize.generate_tokens(StringIO.StringIO(content).readline)
   for num, val, start, _, _ in tokens:
     if num == toknum:
       start_point = view.text_point(start[0] - 1, start[1])
