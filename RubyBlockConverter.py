@@ -1,4 +1,7 @@
-import io
+try:
+  import io
+except ImportError:
+  pass # ignore _fileio on Linux
 import tokenize
 import re
 import sublime, sublime_plugin
