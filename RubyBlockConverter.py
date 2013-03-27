@@ -75,6 +75,8 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
     points_to_replace = search_points_to_replace(self)
     points_to_replace.sort(reverse = True)
 
+    view.sel().clear()
+
     for p in points_to_replace:
       if p in self.opening_points:
         # f{          f do
@@ -109,6 +111,7 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
           newline = ''
         replace_start = p - (len(m.group('spaces')) if m.group('exp') and m.group('spaces') else 0)
         view.replace(edit, sublime.Region(replace_start, p + 1), '%send' % newline)
+        view.sel().add(sublime.Region(replace_start))
 
     self.reindent()
 
