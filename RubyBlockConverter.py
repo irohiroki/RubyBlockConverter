@@ -1,9 +1,9 @@
 try:
   import io
 except ImportError:
+  # probably linux
   import StringIO
   io = StringIO
-  # pass # ignore _fileio on Linux
 import tokenize
 import re
 import sublime, sublime_plugin
