@@ -70,6 +70,10 @@ Future
 ------
 I have a plan to conbine these two commands. That should behave like TextMate.
 
+Contributors
+------------
+- [@dsandstrom](https://github.com/dsandstrom)
+
 License
 -------
 All of Ruby Block Converter for Sublime Text 2 is licensed under the MIT license.
