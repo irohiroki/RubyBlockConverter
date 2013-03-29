@@ -64,11 +64,17 @@ By default,
 
 Compatibility
 -------------
-It's Sublime Text 3 ready!
+- Mac: Sublime Text 3 compatible
+- Linux: Sublime Text 2 only
+- Other: Not tested
 
 Future
 ------
 I have a plan to conbine these two commands. That should behave like TextMate.
+
+Contributors
+------------
+- [@dsandstrom](https://github.com/dsandstrom)
 
 License
 -------
