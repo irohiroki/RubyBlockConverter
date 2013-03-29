@@ -64,7 +64,9 @@ By default,
 
 Compatibility
 -------------
-It's Sublime Text 3 ready!
+- Mac: Sublime Text 3 compatible
+- Linux: Sublime Text 2 only
+- Other: Not tested
 
 Future
 ------
