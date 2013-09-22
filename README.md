@@ -1,4 +1,4 @@
-Ruby Block Converter for Sublime Text 2
+Ruby Block Converter for Sublime Text 2 and 3
 ==============================
 A command plugin that enables to toggle ruby blocks between braces and `do end`.
 
@@ -78,7 +78,7 @@ Contributors
 
 License
 -------
-All of Ruby Block Converter for Sublime Text 2 is licensed under the MIT license.
+All of Ruby Block Converter for Sublime Text is licensed under the MIT license.
 
 Copyright (c) 2013 Hiroki Yoshioka
 
