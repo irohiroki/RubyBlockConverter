@@ -32,6 +32,22 @@ def search_points_to_replace(command):
 
   return list(points_to_replace)
 
+def is_surrounded_by_brackets(command, bracket_blocks, do_end_blocks):
+  cursor_position = command.view.sel()[0].a
+  distance = 0
+  ret = False
+  for key, value in bracket_blocks.iteritems():
+    if key <= cursor_position and cursor_position <= value:
+      distance = value - key
+      ret = True
+
+  for key, value in do_end_blocks.iteritems():
+    if key <= cursor_position and cursor_position <= value and distance > (value - key):
+      distance = value - key
+      ret = False
+
+  return ret
+
 def match_blocks(command, toknum, opening, closing):
   view = command.view
   opening_points = []
@@ -50,7 +66,7 @@ def match_blocks(command, toknum, opening, closing):
 
   return blocks
 
-class BraceToDoEndCommand(sublime_plugin.TextCommand):
+class ToggleBetweenDoEndAndBraceCommand(sublime_plugin.TextCommand):
   lines_to_reindent = set()
 
   def reserve_reindent(self, line):
@@ -70,10 +86,12 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
     for line in dirty_lines:
       sel.subtract(sublime.Region(view.line(view.text_point(line, 0)).b))
 
-  def run(self, edit):
-    view = self.view
-    self.blocks = match_blocks(self, tokenize.OP, '{', '}')
+  def row_span(self, point):
+    return self.view.rowcol(self.blocks[point])[0] - self.view.rowcol(point)[0]
 
+  def brace_to_do_end(self, edit, blocks):
+    view = self.view
+    self.blocks = blocks
     self.opening_points = list(self.blocks.keys())
     self.opening_points.sort(reverse=True)
 
@@ -124,13 +142,9 @@ class BraceToDoEndCommand(sublime_plugin.TextCommand):
 
     self.reindent()
 
-class DoEndToBraceCommand(sublime_plugin.TextCommand):
-  def row_span(self, point):
-    return self.view.rowcol(self.blocks[point])[0] - self.view.rowcol(point)[0]
-
-  def run(self, edit):
+  def do_end_to_brace(self, edit, blocks):
     view = self.view
-    self.blocks = match_blocks(self, tokenize.NAME, 'do', 'end')
+    self.blocks = blocks
 
     self.opening_points = list(self.blocks.keys())
     self.opening_points.sort(reverse = True)
@@ -147,3 +161,13 @@ class DoEndToBraceCommand(sublime_plugin.TextCommand):
         view.replace(edit, sublime.Region(p, replace_end), '{')
       else:
         view.replace(edit, sublime.Region(p, p + 3), '}')
+
+  def run(self, edit):
+    view = self.view
+    bracket_blocks = match_blocks(self, tokenize.OP, '{', '}')
+    do_end_blocks = match_blocks(self, tokenize.NAME, 'do', 'end')
+
+    if is_surrounded_by_brackets(self, bracket_blocks, do_end_blocks):
+      self.brace_to_do_end(edit, bracket_blocks)
+    else:
+      self.do_end_to_brace(edit, do_end_blocks)

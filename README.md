@@ -10,16 +10,16 @@ Place the cursor in the block and run the command:
 # original
 foo { bar }
 
-# run "brace_to_do_end"
+# run "toggle_between_do_end_and_brace"
 foo do
   bar
 end
 
-# run "do_end_to_brace"
+# run "toggle_between_do_end_and_brace"
 foo { bar }
 ```
 
-do_end_to_brace shrinks a block in a line when the block traverses at most 3 lines.
+toggle_between_do_end_and_brace shrinks a block in a line when the block traverses at most 3 lines.
 
 ```ruby
 # original
@@ -27,16 +27,16 @@ foo {|a|
   a.bar
 }
 
-# run "brace_to_do_end"
+# run "toggle_between_do_end_and_brace"
 foo do |a|
   a.bar
 end
 
-# but when revert with "do_end_to_brace",
+# but when revert with "toggle_between_do_end_and_brace",
 foo {|a| a.bar }
 ```
 
-When a block has more than 3 lines, do_end_to_brace leaves those lines untouched.
+When a block has more than 3 lines, toggle_between_do_end_and_brace leaves those lines untouched.
 
 ```ruby
 # original
@@ -45,7 +45,7 @@ foo do
   baz
 end
 
-# run "do_end_to_brace"
+# run "toggle_between_do_end_and_brace"
 foo {
   bar
   baz
@@ -56,11 +56,16 @@ Install
 -------
 Use [Package Control](http://wbond.net/sublime_packages/package_control) and search for "Ruby Block Converter."
 
+Command Palette
+---------------
+`ctrl+shift+p` and select 'Toggle between Ruby do-end and brace blocks' command. This is an easy way to memorize the key binding.
+
 Key Binding
 -----------
-By default,
-`ctrl+shift+[` do_end_to_brace
-`ctrl+shift+]` brace_to_do_end
+By default
+
+ - `ctrl+shift+[` toggle_between_do_end_and_brace
+ - `ctrl+shift+]` toggle_between_do_end_and_brace
 
 Compatibility
 -------------
@@ -68,12 +73,9 @@ Compatibility
 - Linux: Sublime Text 3 ready!
 - Other: Not tested
 
-Future
-------
-I have a plan to conbine these two commands. That should behave like TextMate.
-
 Contributors
 ------------
+- [@orbanbotond](https://github.com/orbanbotond)
 - [@dsandstrom](https://github.com/dsandstrom)
 
 License
