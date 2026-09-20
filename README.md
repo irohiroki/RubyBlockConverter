@@ -68,6 +68,23 @@ Compatibility
 - Linux: Sublime Text 3 ready!
 - Other: Not tested
 
+Testing
+-------
+The tests live in `tests` and run inside Sublime Text, because the commands
+call the sublime API and leave indentation to the built-in `reindent` command.
+
+1. Clone this repository into your `Packages` directory.
+2. Install [UnitTesting](https://github.com/SublimeText/UnitTesting) with Package Control.
+3. Run "UnitTesting: Test Current Package" from the command palette.
+
+Each pair of `tests/before-*.rb` and `tests/after-*.rb` is one test case. In a
+before file, `@` marks a cursor: the markers are stripped before the text goes
+into the buffer and their positions become the selection. The command runs once
+with every cursor set, and the whole buffer is compared with the after file.
+
+To add a case, append the source to a before file with `@` where the cursor
+belongs, and append the expected result to the matching after file.
+
 Future
 ------
 I have a plan to conbine these two commands. That should behave like TextMate.
